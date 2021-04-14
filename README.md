@@ -168,7 +168,7 @@ python demo.py --config-file ../configs/COCO-Keypoints/keypoint_rcnn_R_101_FPN_3
 2. Remove oscillation issue through filter
 ![ex_screenshot](./src/2.png)
 
-3. Compensate zero0value through filter
+3. Compensate zero-value through filter
 ![ex_screenshot](./src/3.png)
 
 # Reference #
