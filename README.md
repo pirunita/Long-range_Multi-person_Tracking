@@ -12,7 +12,7 @@ objective : Samsung GTC
 * GPU Resource: GTX 1080ti 1x
 * Docker Version: 19.03.8
 
-# Direcotry #
+# Directory #
 ~~~
 ├── build
 
@@ -51,15 +51,48 @@ objective : Samsung GTC
 # Usage #
 ## Requirement ##
 * Recommend using nvidia-docker
-  
+
+## Pretrained model ##
+### COCO Person Keypoint Detection Baselines with Keypoint R-CNN
+<!--
+./gen_html_table.py --config 'COCO-Keypoints/*50*' 'COCO-Keypoints/*101*'  --name R50-FPN R50-FPN R101-FPN X101-FPN --fields lr_sched train_speed inference_speed mem box_AP keypoint_AP
+-->
+
+<table><tbody>
+<!-- START TABLE -->
+<!-- TABLE HEADER -->
+<th valign="bottom">Name</th>
+<th valign="bottom">lr<br/>sched</th>
+<th valign="bottom">train<br/>time<br/>(s/iter)</th>
+<th valign="bottom">inference<br/>time<br/>(s/im)</th>
+<th valign="bottom">train<br/>mem<br/>(GB)</th>
+<th valign="bottom">box<br/>AP</th>
+<th valign="bottom">kp.<br/>AP</th>
+<th valign="bottom">model id</th>
+<th valign="bottom">download</th>
+<!-- TABLE BODY -->
+<!-- ROW: keypoint_rcnn_R_101_FPN_3x -->
+ <tr><td align="left"><a href="configs/COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml">R101-FPN</a></td>
+<td align="center">3x</td>
+<td align="center">0.390</td>
+<td align="center">0.076</td>
+<td align="center">6.1</td>
+<td align="center">56.4</td>
+<td align="center">66.1</td>
+<td align="center">138363331</td>
+<td align="center"><a href="https://dl.fbaipublicfiles.com/detectron2/COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x/138363331/model_final_997cc7.pkl">model</a>&nbsp;|&nbsp;<a href="https://dl.fbaipublicfiles.com/detectron2/COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x/138363331/metrics.json">metrics</a></td>
+</tr>
+
+</tbody></table>
+
 ### Docker ###
-~~~zsh
+```shell
 MOUNTED_PATH="/home/cvpr-pu/sungpil/posetron"
 NAME="gtc"
 docker run --runtime=nvidia -it --name ${NAME} -v /dev/snd:/dev/snd -v ${MOUNTED_PATH}:/${NAME} -v /tmp/.X11-unix:/tmp/.X11-unix:ro -e DISPLAY=unix$DISPLAY \
             --cap-add SYS_PTRACE \
             --ip host khosungpil/gtc:3.0
-~~~
+```
 1. xhost local:root
 2. Edit `MOUNTED_PATH` where code file is in `docker_init.sh`
 3. Docker images in dockerhub: https://hub.docker.com/repository/docker/khosungpil/gtc <br>
@@ -69,10 +102,14 @@ It will be installed automatically when run `docker_init.sh`
 5. Check Mounted folder
 
 ## Build ##
+1. Join in running docker container
+2. `rm -rf /${NAME}/build/lib.linux-x86_64-3.6/detectron2/*.so`
+3. `python -m pip install -e`
+
 
 ## Demo ##
 1. Move `demo/key.sh`
-~~~zsh
+```shell
 FILE_NAME="meterialCheck_2"
 rm -rf ../output/${FILE_NAME}
 
@@ -81,14 +118,14 @@ python demo.py --config-file ../configs/COCO-Keypoints/keypoint_rcnn_R_101_FPN_3
 		--output ../output/${FILE_NAME}/${FILE_NAME}.mp4 \
 		--parallel 1 \
 		--opts MODEL.WEIGHTS ../model/model_final_997cc7.pkl \
-~~~
+```
 2. Put the mp4 video fild in `input` folder
 3. Edit `${FILE_NAME}` in `demo/key.sh`
 4. If you want to use Single GPU, `parallel` is 0 in `demo/key.sh`
 5. If you want to use Multi GPU, `parallel` is 1 `demo/key.sh`
 6. Run `key.sh`
 
-## Edit detectron2 ##
+## Explain edited detectron2 Code ##
 ### demo/demo.py ###
 1. Generate detectron2 module for Pose Estimation
 2. Generate the list of keypoints information inferencing all video frame through pretrained model.
@@ -124,10 +161,28 @@ python demo.py --config-file ../configs/COCO-Keypoints/keypoint_rcnn_R_101_FPN_3
 4. Refinement keypoints that score is less than threshold value among keypoints of the k-th frame.
 5. Remove the refined keypoints when it is outside the bounding box.
 
-## Result ##
+# Result #
+1. Detailed Pose Keypoint
 ![ex_screenshot](./src/1.png)
+
+2. Remove oscillation issue through filter
 ![ex_screenshot](./src/2.png)
+
+3. Compensate zero0value through filter
 ![ex_screenshot](./src/3.png)
+
+# Reference #
+```BibTeX
+@misc{wu2019detectron2,
+  author =       {Yuxin Wu and Alexander Kirillov and Francisco Massa and
+                  Wan-Yen Lo and Ross Girshick},
+  title =        {Detectron2},
+  howpublished = {\url{https://github.com/facebookresearch/detectron2}},
+  year =         {2019}
+}
+```
+
+
 
 
 
